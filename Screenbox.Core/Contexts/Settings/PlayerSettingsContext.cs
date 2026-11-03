@@ -32,6 +32,8 @@ public sealed partial class PlayerSettingsContext : SettingsContextBase<PlayerSe
     private const string AdvancedModeKey = "Advanced/IsEnabled";
     private const string AdvancedVideoUpscaleKey = "Advanced/VideoUpscale";
     private const string GlobalArgumentsKey = "Values/GlobalArguments";
+    private const string GamepadYActionKey = "Player/Gamepad/YAction";
+    private const string GamepadLeftThumbstickButtonActionKey = "Player/Gamepad/LeftThumbstickButtonAction";
 
     private static bool IsXbox => SystemInformation.IsXbox;
 
@@ -153,6 +155,18 @@ public sealed partial class PlayerSettingsContext : SettingsContextBase<PlayerSe
     {
         get => Get(GlobalArgumentsKey, string.Empty);
         set => Set(GlobalArgumentsKey, value);
+    }
+
+    public GamepadButtonAction GamepadYAction
+    {
+        get => Get(GamepadYActionKey, GamepadButtonAction.ToggleFullscreen);
+        set => Set(GamepadYActionKey, value);
+    }
+
+    public GamepadButtonAction GamepadLeftThumbstickButtonAction
+    {
+        get => Get(GamepadLeftThumbstickButtonActionKey, GamepadButtonAction.OpenSubtitleMenu);
+        set => Set(GamepadLeftThumbstickButtonActionKey, value);
     }
 
     public PlayerSettingsContext(ISettingsStorage storage) : base(storage)

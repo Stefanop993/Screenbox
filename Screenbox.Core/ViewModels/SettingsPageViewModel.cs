@@ -53,6 +53,8 @@ public sealed partial class SettingsPageViewModel : ObservableRecipient
 
     public IReadOnlyList<PlaybackActionKind> GestureOptions { get; } = Enum.GetValues<PlaybackActionKind>();
 
+    public IReadOnlyList<GamepadButtonAction> GamepadButtonActionOptions { get; } = Enum.GetValues<GamepadButtonAction>();
+
     private static readonly int[] _volumeOptions = [100, 125, 150, 200];
 
     private readonly IFilesService _filesService;

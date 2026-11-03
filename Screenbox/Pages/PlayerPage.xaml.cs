@@ -82,10 +82,11 @@ public sealed partial class PlayerPage : Page
 
         switch (e.Key)
         {
-            case VirtualKey.GamepadY when ViewModel.ViewMode != WindowViewMode.Compact:
-                ViewModel.ControlsHidden = false;
-                PlayQueueFlyout.ShowAt(PlayQueueButton,
-                    new FlyoutShowOptions { Placement = GlobalizationHelper.MirrorWhenRightToLeft(FlyoutPlacementMode.BottomEdgeAlignedLeft) });
+            case VirtualKey.GamepadY:
+                ExecuteGamepadButtonAction(ViewModel.PlayerSettings.GamepadYAction);
+                break;
+            case VirtualKey.GamepadLeftThumbstickButton:
+                ExecuteGamepadButtonAction(ViewModel.PlayerSettings.GamepadLeftThumbstickButtonAction);
                 break;
             case VirtualKey.GamepadMenu:
                 VideoView.ContextFlyout.ShowAt(PlayerControls,
@@ -97,6 +98,37 @@ public sealed partial class PlayerPage : Page
             default:
                 base.OnKeyDown(e);
                 return;
+        }
+    }
+
+    private void ExecuteGamepadButtonAction(GamepadButtonAction action)
+    {
+        switch (action)
+        {
+            case GamepadButtonAction.ToggleFullscreen:
+                PlayerControls?.ViewModel.ToggleFullscreenCommand.Execute(null);
+                break;
+            case GamepadButtonAction.OpenPlayQueue:
+                if (ViewModel.ViewMode != WindowViewMode.Compact)
+                {
+                    ViewModel.ControlsHidden = false;
+                    PlayQueueFlyout.ShowAt(PlayQueueButton,
+                        new FlyoutShowOptions { Placement = GlobalizationHelper.MirrorWhenRightToLeft(FlyoutPlacementMode.BottomEdgeAlignedLeft) });
+                }
+                break;
+            case GamepadButtonAction.OpenSubtitleMenu:
+                if (ViewModel.ControlsHidden)
+                {
+                    ViewModel.ControlsHidden = false;
+                }
+                PlayerControls?.ShowAudioSubtitleFlyout();
+                break;
+            case GamepadButtonAction.PlayPause:
+                ViewModel.HandlePlayPauseKeyDown();
+                break;
+            case GamepadButtonAction.None:
+            default:
+                break;
         }
     }
 

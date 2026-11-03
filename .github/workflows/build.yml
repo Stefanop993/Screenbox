@@ -1,0 +1,30 @@
+name: Build Screenbox
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build
+        run: |
+          msbuild Screenbox.slnx /t:Build /p:Configuration=Debug /p:Platform=x64 /v:minimal
+        shell: pwsh
+
+      - name: Upload MSIX
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenbox-msix
+          path: |
+            Screenbox/bin/x64/Debug/**/*.msix
+            Screenbox/bin/x64/Debug/**/*.msixbundle
