@@ -16,6 +16,10 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
+      - name: Restore NuGet
+        run: dotnet restore Screenbox.slnx
+        shell: pwsh
+
       - name: Build
         run: |
           $msbuild = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe | Select-Object -First 1
