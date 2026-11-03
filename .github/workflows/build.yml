@@ -23,7 +23,7 @@ jobs:
       - name: Build
         run: |
           $msbuild = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe | Select-Object -First 1
-          & $msbuild Screenbox.slnx /t:Build /p:Configuration=Debug /p:Platform=x64 /p:ContinuousIntegrationBuild=true /v:minimal
+          & $msbuild Screenbox.slnx /t:Build /p:Configuration=Debug /p:Platform=x64 /p:ContinuousIntegrationBuild=true /p:GenerateAppxPackageOnBuild=true /v:minimal
         shell: pwsh
 
       - name: Upload MSIX
