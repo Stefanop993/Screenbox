@@ -2,42 +2,67 @@ name: Build Screenbox
 
 on:
   workflow_dispatch:
+    inputs:
+      detail_level:
+        description: 'Choose MSBuild level of detail'
+        required: true
+        default: 'minimal'
+        type: choice
+        options:
+          - quiet
+          - minimal
+          - normal
+          - detailed
+          - diagnostic
   push:
     branches: [ main ]
 
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+      actions: write
+      contents: read
+    env:
+      APP_PROJ_PATH: Screenbox
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v7
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - name: Setup MSBuild.exe
+        uses: microsoft/setup-msbuild@v3
         with:
-          dotnet-version: '10.0.x'
+          msbuild-architecture: x64
 
-      - name: Restore NuGet
-        run: dotnet restore Screenbox.slnx
-        shell: pwsh
+      - name: Update package manifest
+        run: ./scripts/Update-AppxManifest.ps1 -Identity SideloadUnsigned
 
-      - name: Build
+      - name: Update project version
+        run: ./scripts/Update-ProjectVersion.ps1
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Build app package
         run: |
-          $msbuild = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe | Select-Object -First 1
-          & $msbuild Screenbox.slnx /t:Build /p:Configuration=Debug /p:Platform=x64 /p:ContinuousIntegrationBuild=true /v:minimal
-        shell: pwsh
+          msbuild $env:APP_PROJ_PATH/Screenbox.csproj `
+            -restore `
+            -v:${{ inputs.detail_level || 'minimal' }} `
+            -p:RestoreConfigFile=nuget.config `
+            -p:ContinuousIntegrationBuild=true `
+            -p:Configuration=Release `
+            -p:Platform=x64 `
+            -p:UapAppxPackageBuildMode=SideloadOnly
 
-      - name: Package MSIX
-        run: |
-          $msbuild = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe | Select-Object -First 1
-          & $msbuild Screenbox\Screenbox.csproj /t:AppxPackage /p:Configuration=Debug /p:Platform=x64 /p:AppxBundle=Never /p:ContinuousIntegrationBuild=true /v:minimal
-        shell: pwsh
-
-      - name: Upload MSIX
-        uses: actions/upload-artifact@v4
+      - name: Upload app package artifact
+        uses: actions/upload-artifact@v7
         with:
           name: screenbox-msix
           path: |
-            Screenbox/bin/**/*.msix
-            Screenbox/bin/**/*.msixbundle
-            Screenbox/bin/**/*.msixupload
-            Screenbox/AppPackages/**
+            ${{ env.APP_PROJ_PATH }}/AppPackages/**/*.msix
+            ${{ env.APP_PROJ_PATH }}/AppPackages/**/*.msixbundle
