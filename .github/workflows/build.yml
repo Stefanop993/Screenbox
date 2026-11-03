@@ -23,7 +23,13 @@ jobs:
       - name: Build
         run: |
           $msbuild = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe | Select-Object -First 1
-          & $msbuild Screenbox.slnx /t:Build;AppxPackage /p:Configuration=Debug /p:Platform=x64 /p:ContinuousIntegrationBuild=true /v:minimal
+          & $msbuild Screenbox.slnx /t:Build /p:Configuration=Debug /p:Platform=x64 /p:ContinuousIntegrationBuild=true /v:minimal
+        shell: pwsh
+
+      - name: Package MSIX
+        run: |
+          $msbuild = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe | Select-Object -First 1
+          & $msbuild Screenbox\Screenbox.csproj /t:AppxPackage /p:Configuration=Debug /p:Platform=x64 /p:AppxBundle=Never /p:ContinuousIntegrationBuild=true /v:minimal
         shell: pwsh
 
       - name: Upload MSIX
@@ -31,5 +37,7 @@ jobs:
         with:
           name: screenbox-msix
           path: |
-            Screenbox/bin/x64/Debug/**/*.msix
-            Screenbox/bin/x64/Debug/**/*.msixbundle
+            Screenbox/bin/**/*.msix
+            Screenbox/bin/**/*.msixbundle
+            Screenbox/bin/**/*.msixupload
+            Screenbox/AppPackages/**
