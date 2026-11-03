@@ -53,7 +53,28 @@ public sealed partial class SettingsPageViewModel : ObservableRecipient
 
     public IReadOnlyList<PlaybackActionKind> GestureOptions { get; } = Enum.GetValues<PlaybackActionKind>();
 
-    public IReadOnlyList<GamepadButtonAction> GamepadButtonActionOptions { get; } = Enum.GetValues<GamepadButtonAction>();
+    /// <summary>
+    /// Gets the gamepad actions to display in the settings, ordered by how often
+    /// they are likely to be used.
+    /// </summary>
+    public IReadOnlyList<GamepadButtonAction> GamepadButtonActionOptions { get; } =
+    [
+        GamepadButtonAction.None,
+        GamepadButtonAction.PlayPause,
+        GamepadButtonAction.Rewind,
+        GamepadButtonAction.FastForward,
+        GamepadButtonAction.RewindLong,
+        GamepadButtonAction.FastForwardLong,
+        GamepadButtonAction.IncreaseVolume,
+        GamepadButtonAction.DecreaseVolume,
+        GamepadButtonAction.PreviousTrack,
+        GamepadButtonAction.NextTrack,
+        GamepadButtonAction.ToggleFullscreen,
+        GamepadButtonAction.TogglePlayerVisibility,
+        GamepadButtonAction.OpenPlaybackOptions,
+        GamepadButtonAction.OpenPlayQueue,
+        GamepadButtonAction.OpenSubtitleMenu,
+    ];
 
     private static readonly int[] _volumeOptions = [100, 125, 150, 200];
 
